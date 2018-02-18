@@ -1,0 +1,62 @@
+#include "TST.hpp"
+#include "TSTNode.hpp"
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <set>
+
+using namespace std;
+
+/**
+ * A simple test driver for the BST class template.
+ * P1 CSE 100 2013
+ * Author: P. Kube (c) 2013
+ */
+int main() {
+  vector<string> myArr;
+  myArr.push_back("test");
+  myArr.push_back("tests");
+  myArr.push_back("tst");
+  
+  cout << "before building trieeeeeeeeeee" << endl;
+  TST myTST(myArr);
+  if(myTST.root){
+    if(myTST.root->data != 't'){
+      cout << "root wrong" << endl;
+      return 0;
+    }
+    if(myTST.root->mid->data != 'e'){
+      cout << "2nd wrong" << endl;
+      return 0;
+    }
+    if(myTST.root->mid->mid->data != 's'){
+      cout << "3rd wrong" << endl;
+      cout << "it has " << myTST.root->mid->mid->data << endl;
+    }
+    if(myTST.root->mid->mid->mid->data != 't'){
+      cout << "4th wrong" << endl;
+    }
+    if(myTST.root->mid->mid->mid->mid->data != 's'){
+      cout << "4th wrong" << endl;
+    }
+    if(myTST.root->mid->mid->mid->mid->mid){
+      cout << "what" << endl;
+    }    
+    if(myTST.root->mid->right->data != 's'){
+      cout << "tst de s wrong" << endl;
+      cout << "it has " << myTST.root->mid->right->data << endl;
+    }
+    if(myTST.root->mid->right->mid->data != 't'){
+      cout << "tst de t wrong" << endl;
+      cout << "it has " << myTST.root->mid->right->mid->data << endl;
+    }
+ 
+  }
+  else{
+    cout << "no root" << endl;
+    return 0;
+  }
+
+  cout << "success" << endl;
+}
