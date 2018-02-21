@@ -21,7 +21,10 @@ public:
   TSTNode * right;
 
   string myWord;
-
+/*
+  string preWord;
+  int preFrequency;
+*/
   /** Constructor.  Initialize a TSTNode with the given Data item,
    *  no children.
    */
@@ -29,6 +32,7 @@ public:
     left = right = mid = 0;
     endWord = 0;
     frequency = 0;
+    //prefrequency = 0;
   }
 
 

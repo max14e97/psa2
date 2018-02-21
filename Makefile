@@ -23,27 +23,14 @@ default: main
 
 part2: main2
 
-main: main.o TSTNode TST Autocomplete AutocompleteUtils
-	$(CXX) $(LDFLAGS) -o main main.o TSTNode.hpp TST.hpp AutocompleteUtils.hpp Autocomplete.hpp
-
-test: TSTNode TST Autocomplete AutocompleteUtils test.o
-	$(CXX) $(LDFLAGS) -o test TSTNode.hpp TST.hpp AutocompleteUtils.hpp Autocomplete.hpp test.o
+main: main.o Autocomplete AutocompleteUtils
+	$(CXX) $(LDFLAGS) -o main main.o AutocompleteUtils.hpp Autocomplete.hpp
 
 main.o: main.cpp
 	$(CXX) $(CXXFLAGS) -c main.cpp
 
 Autocomplete: Autocomplete.hpp
 	$(CXX) $(CXXFLAGS) -c Autocomplete.hpp
-
-TSTNode: TSTNode.hpp
-	$(CXX) $(CXXFLAGS) -c TSTNode.hpp
-
-TST: TST.hpp
-	$(CXX) $(CXXFLAGS) -c TST.hpp
-
-test.o: test.cpp
-	$(CXX) $(CXXFLAGS) -c test.cpp
-
 
 main2: main2.o DocumentGenerator AutocompleteUtils
 	$(CXX) $(LDFLAGS) -o main2 main2.o AutocompleteUtils.hpp DocumentGenerator.hpp
