@@ -9,17 +9,27 @@
 #include <string>
 #include <dirent.h>
 #include <unordered_map>
-#include "AutocompleteUtils.hpp"
+#include "myUtils.hpp"
+#include <algorithm>
 
 using namespace std;
 
-typedef unordered_map<string, vector<pair<string, int>>> pairMap;
+typedef unordered_map<string, vector<string>> pairMap;
+
+/*
+  static string * myKey;
+  bool foundString(pair<string, int> & myPair){
+    return (myPair.first == *myKey);
+  }
+*/
 
 class DocumentGenerator
 {
 public:
   pairMap myMap;
-  
+  //unordered_map<string, int> sumMap;
+
+ 
  /**
  * Builds a document generator from the documents in the given directory
  * This should open all files in the directory, reads them in, tokenize them into words,
@@ -54,82 +64,31 @@ public:
  * 2) pretend that the first word in each document is preceeded by a periood (That way, it is considered when starting any new sentence)
  */
   DocumentGenerator(const string documentsDirectory) {
-    cout << "begin constructor" << endl;
     DIR * dir;
     struct dirent *ent;
 
-    cout << "directory name is " << documentsDirectory.c_str() << endl;
-    if((dir = opendir(documentsDirectory.c_str())) == NULL){
-      cout << "opendir is null" << endl;
-    }
+    srand(time(NULL));
 
     if((dir = opendir(documentsDirectory.c_str())) != NULL){
       while((ent = readdir(dir)) != NULL){
-        cout << "my d name is " << ent->d_name << endl;
 
-        vector<string> words = AutocompleteUtils::getWords(documentsDirectory + "/" + ent->d_name);
+        vector<string> words = myUtils::getWords(documentsDirectory + "/" + ent->d_name);
 
         if(words.size() == 0){
           continue;
         }
 
-        for(int index = 0; index < words.size(); ++index){
-          for(int j = 0; j < words[index].length(); ++j){
-            for(int z = 0; z < UNWANTED_CHARACTERS.length(); ++z){
-              if(words[index][j] == UNWANTED_CHARACTERS[z]){
-                words[index].erase(j);
-                //cout << "After WORD is: " << words[index] << endl;
-                --j;
-                break;
-              }
-            }
-            for(int z = 0; z < PUNCTUATION.length(); ++z){
-              if(words[index][j] == PUNCTUATION[z]){
-                //cout << "Found a punctuation: " << string(words[index]) << endl;
-                //index?
-                string punc(1, words[index][j]);
-                //cout << "My PUNCTUATION is " << punc << endl;
-                words.insert(words.begin()+(index+1), punc);
-                words[index].erase(j);
-                //cout << "After word is: " << words[index] << " and punc is: " << words[index+1] << endl;
-                --j;
-                ++index;
-                break;
-              }
-            }
-          }
-        }
-        
-/*
-        for(int index = 0; index < words.size(); ++index){
-          cout << words[index] << endl;
-        }
-*/
-
-        //PROBLEM OF INDEX+1
         for(int index = 0; index < words.size()-1; ++index){
-          if((myMap.count(words[index])) != 0){
-            //check if the following word is in the vector or not;
-            bool present = 0;
-            for(int j = 0; j < myMap[words[index]].size(); ++j){
-              if(words[index+1] == (myMap[words[index]])[j].first){
-                present = 1;
-                ++((myMap[words[index]])[j].second);
-                break;
-              }
-            }
-            if(present == 0){
-              myMap[words[index]].push_back(make_pair(words[index+1], 1));
-            }
-          }
-          else{
-            myMap[words[index]] = {{words[index+1], 1}};
-          }
+          //if((myMap.count(words[index])) != 0){
+            myMap[words[index]].push_back(words[index+1]);
+          //}
+          //else{
+           // myMap[words[index]] = {words[index+1]};
+          //}
         }
-        myMap[words[words.size()-1]] = {};
       }
+      closedir(dir);
     }
-    cout << "end constructor" << endl;
   }
 
   /**
@@ -145,27 +104,19 @@ public:
  * 
  * You can assume that prevWord is always a word that's present in one of the documents you've read in.
  */
-  string generateNextWord(const string prevWord) {
-    cout << "Begin generate next word for " << prevWord << endl;
-    //cout << "myMap[prevWord[0] is " << myMap[prevWord][0].first << endl;
-
-    vector<pair<string, int>> pairArr = myMap[prevWord];
-
-    for(int index = 1; index < pairArr.size(); ++index){
-     // cout << "Got vector of pairs. String is " << pairArr[index].first << " and int is " << pairArr[index].second;
-      pairArr[index].second = pairArr[index].second + pairArr[index-1].second;
-    }
-    int sum = pairArr[pairArr.size()-1].second;
-    srand(time(NULL));
-    int randomNum = rand() % sum + 1; //range from 1 to sum
-
+  string generateNextWord(const string & prevWord) {
     string result;
-    for(int index = pairArr.size()-1; index >= 0; --index){
-      if(pairArr[index].second < randomNum){
-        result = pairArr[index+1].first;
-        break;
-      }
+ 
+    if(myMap[prevWord].size() == 1){
+      result = myMap[prevWord][0];
+      return result;
     }
+
+    int sum = myMap[prevWord].size();
+
+    int randomNum = rand() % sum; //range from 0 to sum-1
+
+    result = myMap[prevWord][randomNum];
 
     return result; //TODO
   }
@@ -187,31 +138,19 @@ public:
  * The document will likely not end at the end of a sentence. That's okay.
  */
   string generateDocument(const int numWords) {
-    cout << "begin generate document" << endl;
-    cout << "my map size is " << myMap.size() << endl;
-
     string curr = generateNextWord(".");
     string result = curr;
 
-    //cout << "1st result is " << result << endl;
-
     for(int index = 1; index < numWords; ++index){
       curr = generateNextWord(curr);
-      bool addSpace = 1;
-      for(int j = 0; j < PUNCTUATION.length(); ++j){
-        if(curr[0] == PUNCTUATION[j]){
-          addSpace = 0;
-          break;
-        }
-      }
-      if(addSpace == 1){
-        result = result + " " + curr;
-      }
+
+      if (PUNCTUATION.find(curr[curr.length()-1]) == string::npos) {
+        result += " " + curr;
+      } 
       else{
-        result = result + curr;
+        result += curr;
       }
     }
-
     return result;//TODO
   }
 

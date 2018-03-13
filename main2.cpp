@@ -69,7 +69,7 @@ int main(int argc, const char ** argv) {
       } 
       //check for a repetition argument
       for (int internalRep = 0; internalRep < numInternalReps; internalRep++) {
-        cout << "argv[2] is " << argv[2] << endl;
+        //cout << "argv[2] is " << argv[2] << endl;
         DocumentGenerator dg(argv[2]);
         cout << dg.generateDocument(numWords);
         cout << endl;

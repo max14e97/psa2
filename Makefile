@@ -32,8 +32,8 @@ main.o: main.cpp
 Autocomplete: Autocomplete.hpp
 	$(CXX) $(CXXFLAGS) -c Autocomplete.hpp
 
-main2: main2.o DocumentGenerator AutocompleteUtils
-	$(CXX) $(LDFLAGS) -o main2 main2.o AutocompleteUtils.hpp DocumentGenerator.hpp
+main2: main2.o DocumentGenerator myUtils
+	$(CXX) $(LDFLAGS) -o main2 main2.o myUtils.hpp DocumentGenerator.hpp
 
 main2.o: main2.cpp
 	$(CXX) $(CXXFLAGS) -c main2.cpp
@@ -43,6 +43,9 @@ DocumentGenerator: DocumentGenerator.hpp
 
 AutocompleteUtils: AutocompleteUtils.hpp
 	$(CXX) $(CXXFLAGS) -c AutocompleteUtils.hpp
+
+myUtils: myUtils.hpp
+	$(CXX) $(CXXFLAGS) -c myUtils.hpp
 
 clean:
 	$(RM) main main2 *.o *.gch
